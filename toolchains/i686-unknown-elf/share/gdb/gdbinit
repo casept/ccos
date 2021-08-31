@@ -1,0 +1,6 @@
+python
+import sys
+sys.path.insert(0, '/home/user/x-tools/i686-unknown-elf/share/gcc-11.2.0/python')
+from libstdcxx.v6.printers import register_libstdcxx_printers
+register_libstdcxx_printers (None)
+end

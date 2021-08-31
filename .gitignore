@@ -1,0 +1,8 @@
+.vscode/
+.idea/
+.cache/
+**/build/
+**/build-x86_64-unknown-elf-gcc/
+**/build-i686-unknown-elf-gcc/
+docs-3rdparty/
+compile_commands.json
