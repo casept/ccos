@@ -20,10 +20,11 @@ INC_DIRS += ../libs/cclibc/include ../libs/ccnonstd/include ../libs/ccelf/includ
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
-LDFLAGS += -nostdlib -lgcc -L../libs/cclibc/build-i686-unknown-elf-gcc -L../libs/ccnonstd/build-i686-unknown-elf-gcc  -L../libs/ccvga/build-i686-unknown-elf-gcc  -L../libs/ccelf/build-i686-unknown-elf-gcc -l:ccvga.a -l:ccelf.a -l:cclibc.a -l:ccnonstd.a -T ccboot.lds
+LDFLAGS += -nostdlib -static-libgcc -L../libs/cclibc/build-i686-unknown-elf-gcc -L../libs/ccnonstd/build-i686-unknown-elf-gcc  -L../libs/ccvga/build-i686-unknown-elf-gcc  -L../libs/ccelf/build-i686-unknown-elf-gcc -l:ccvga.a -l:ccelf.a -l:ccnonstd.a -l:cclibc.a -lgcc -T ccboot.lds
 
 
 ASFLAGS +=
+CFLAGS  += -std=c18
 CFLAGS  += -O0 -g
 
 MKDIR_P ?= mkdir -p
@@ -83,10 +84,10 @@ clean:
 
 clean_recursive:
 	$(RM) -r $(BUILD_DIR)
-	make TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/cclibc clean
-	make TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/ccnonstd clean
-	make TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/ccvga clean
-	make TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/ccelf clean
+	$(MAKE) TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/cclibc clean
+	$(MAKE) TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/ccnonstd clean
+	$(MAKE) TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/ccvga clean
+	$(MAKE) TARGET_TRIPLE=i686-unknown-elf-gcc -C ../libs/ccelf clean
 
 -include $(DEPS)
 
