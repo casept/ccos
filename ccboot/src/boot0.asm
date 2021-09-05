@@ -106,7 +106,7 @@ boot0:
 	jc boot0_floppy_reset_error
 
 	# Read boot1
-	mov al, 10               # Ten sectors
+	mov al, 17               # Seventeen sectors (rest of track)
 	mov ch, 0                # Zeroth track
 	mov cl, 2                # Second sector
 	mov dh, 0                # Zeroth head
