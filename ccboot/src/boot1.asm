@@ -104,8 +104,6 @@ boot1:
 
 	call boot1_ensure_a20_active
 
-	call boot1_copy_kernel
-
 	# Final GDT load and escape to protected mode
 	lgdt [gdt_desc]
 	mov ebx, boot1_cmain
