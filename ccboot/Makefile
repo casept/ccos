@@ -24,7 +24,7 @@ LDFLAGS += -nostdlib -static-libgcc -L../libs/cclibc/build-i686-unknown-elf-gcc 
 
 
 ASFLAGS +=
-CFLAGS  += -std=c18
+CFLAGS  += -std=gnu18
 CFLAGS  += -O0 -g
 
 MKDIR_P ?= mkdir -p
