@@ -10,7 +10,6 @@
 
 static const uint8_t ELF_HDR_MAGIC[ELF_HDR_MAGIC_LEN] = {0x7F, 'E', 'L', 'F'};
 static const uint32_t ELF_SUPPORTED_HDR_VERSION = 1;
-static const uint8_t ELF_HDR_FLAGS_EMPTY[ELF_HDR_FLAGS_LEN] = {0, 0, 0, 0};
 static elf_fatalf_handler_t ELF_FATALF_HANDLER = NULL;
 
 void elf_register_fatalf(elf_fatalf_handler_t h) { ELF_FATALF_HANDLER = h; }
@@ -24,17 +23,13 @@ static void elf_fatalf(const char* format, ...) {
     va_end(vlist);
 }
 
-/// Parse the ELF header.
-///
-/// This function checks whether the header is valid ELF64,
-/// but not whether it's compatible with the bootloader.
-static struct elf64_header_t elf64_header_parse(const uint8_t* data) {
+struct elf64_header_t elf64_header_parse(const uint8_t* data) {
     size_t i = 0;
     struct elf64_header_t hdr;
     memset(&hdr, 0, sizeof(hdr));
 
     memcpy(&hdr.magic, &data[i], ELF_HDR_MAGIC_LEN);
-    i += ELF_HDR_FLAGS_LEN;
+    i += ELF_HDR_MAGIC_LEN;
     if (!memcmp_bool(hdr.magic, ELF_HDR_MAGIC, ELF_HDR_MAGIC_LEN)) {
         elf_fatalf("ELF executable has invalid ELF header magic (expected {%c, %c, %c, %c}, got {%c, %c, %c, %c})",
                    ELF_HDR_MAGIC[0], ELF_HDR_MAGIC[1], ELF_HDR_MAGIC[2], ELF_HDR_MAGIC[3], hdr.magic[0], hdr.magic[1],
@@ -92,27 +87,35 @@ static struct elf64_header_t elf64_header_parse(const uint8_t* data) {
 
     hdr.elf_version = byteorder_to_u32_native(!hdr.is_be, &data[i]);
     i += 4;
-    return hdr;
-}
 
-/// Checks whether this ELF header describes an ELF executable we actually support.
-/// That means that it's, for x86_64, for the System V ABI etc.
-static void elf_header_check_compat(const struct elf64_header_t* const hdr) {
-    if (hdr->kind != ELF_KIND_EXECUTABLE) {
-        elf_fatalf("kernel executable declares not actually being an ELF executable");
-    }
+    hdr.entrypoint_position = byteorder_to_u64_native(!hdr.is_be, &data[i]);
+    i += 8;
 
-    if (hdr->isa != ELF_ISA_X86_64) {
-        elf_fatalf("kernel executable ISA is not x86_64");
-    }
+    hdr.program_hdr_table_position = byteorder_to_u64_native(!hdr.is_be, &data[i]);
+    i += 8;
 
-    if (!memcmp_bool(hdr->flags, ELF_HDR_FLAGS_EMPTY, ELF_HDR_FLAGS_LEN)) {
-        elf_fatalf("kernel executable ELF header contains unknown flags");
-    }
-}
+    hdr.section_hdr_table_position = byteorder_to_u64_native(!hdr.is_be, &data[i]);
+    i += 8;
 
-struct elf64_header_t elf64_header_parse_and_validate(const uint8_t* data) {
-    struct elf64_header_t hdr = elf64_header_parse(data);
-    elf_header_check_compat(&hdr);
+    hdr.flags = byteorder_to_u32_native(!hdr.is_be, &data[i]);
+    i += 4;
+
+    hdr.hdr_size = byteorder_to_u16_native(!hdr.is_be, &data[i]);
+    i += 2;
+
+    hdr.program_hdr_table_entry_size = byteorder_to_u16_native(!hdr.is_be, &data[i]);
+    i += 2;
+
+    hdr.num_program_hdr_table_entries = byteorder_to_u16_native(!hdr.is_be, &data[i]);
+    i += 2;
+
+    hdr.section_hdr_table_entry_size = byteorder_to_u16_native(!hdr.is_be, &data[i]);
+    i += 2;
+
+    hdr.num_section_hdr_table_entries = byteorder_to_u16_native(!hdr.is_be, &data[i]);
+    i += 2;
+
+    hdr.section_hdr_table_names_idx = byteorder_to_u16_native(!hdr.is_be, &data[i]);
+
     return hdr;
 }

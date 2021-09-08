@@ -4,9 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/// Length of ELF header magic number
 #define ELF_HDR_MAGIC_LEN 4
+/// Length of ELF version
 #define ELF_VERSION_LEN 4
-#define ELF_HDR_FLAGS_LEN 4
 
 #define ELF_PROGRAM_SEGMENT_FLAG_EXECUTABLE 0x01
 #define ELF_PROGRAM_SEGMENT_FLAG_WRITABLE 0x02
@@ -44,11 +45,10 @@ struct elf64_header_t {
     enum elf_kind_t kind;
     enum elf_isa_t isa;
     uint32_t elf_version;
-    // TODO: LE or BE?
     uint64_t entrypoint_position;
     uint64_t program_hdr_table_position;
     uint64_t section_hdr_table_position;
-    uint8_t flags[ELF_HDR_FLAGS_LEN];
+    uint32_t flags;
     uint16_t hdr_size;
     uint16_t program_hdr_table_entry_size;
     uint16_t num_program_hdr_table_entries;
@@ -77,10 +77,21 @@ struct elf64_program_header_t {
     uint64_t alignment;
 };
 
-/// Parses a given ELF header and validates it contains data
-/// that can be used for this bootloader (supported endianness, ISA, ABI etc).
-/// If the ELF violates the ELF spec or is unsupported by the bootloader,
-/// an error message will be output and the program halted.
+/// Section header for a 64-bit ELF.
+struct elf64_section_header_t {
+    uint64_t name;
+    uint64_t type;
+    uint64_t flags;
+    uint64_t addr;
+    uint64_t offset;
+    uint64_t size;
+    uint64_t link;
+    uint64_t info;
+    uint64_t addralign;
+    uint64_t entsize;
+};
+
+/// Parses a given ELF header.
 ///
 /// Does not bounds check the input data buffer.
-struct elf64_header_t elf64_header_parse_and_validate(const uint8_t* data);
+struct elf64_header_t elf64_header_parse(const uint8_t* data);
