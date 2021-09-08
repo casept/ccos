@@ -4,7 +4,7 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-.PHONY: clean run
+.PHONY: clean run run_limine
 
 .DEFAULT_GOAL := cccore
 
@@ -21,4 +21,7 @@ clean:
 	$(MAKE) -C cccore clean_recursive
 
 run: ccboot cccore
-	$(MAKE) -C ccboot run
+	$(MAKE) -C cccore run
+
+run_limine: ccboot cccore
+	$(MAKE) -C cccore run_limine

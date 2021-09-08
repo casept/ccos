@@ -10,8 +10,9 @@ ENTRY(_start)
 PHDRS {
 	null       PT_NULL FLAGS(0) ;
 	text       PT_LOAD FLAGS((1 << 0) | (1 << 2)) ; /* RX */
-	rodata     PT_LOAD FLAGS((1 << 2)) ;            /* R */
+	rodata     PT_LOAD FLAGS((1 << 2)) ;            /* R  */
 	data       PT_LOAD FLAGS((1 << 1) | (1 << 2)) ; /* RW */
+	dynamic PT_DYNAMIC FLAGS((1 << 1) | (1 << 2)) ; /* RW */
 }
 
 SECTIONS {
@@ -24,6 +25,7 @@ SECTIONS {
 
 	/* Move to the next page, because MMU permissions need to be different */
 	. += 4096; /* 4K pages */
+
 	/* Section containing bootloader metadata */
 	.stivale2hdr : {
 		KEEP(*(.stivale2hdr))
@@ -38,6 +40,11 @@ SECTIONS {
 	.data : {
 		*(.data*)
 	} :data
+
+	/* Dynamic section needed for PIE */
+	.dynamic : {
+		*(.dynamic)
+	} :data :dynamic
 
 	.bss : {
 		*(COMMON)

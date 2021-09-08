@@ -1,3 +1,4 @@
+#include <ccvga.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -13,8 +14,18 @@ __attribute__((section(".stivale2hdr"), used)) static struct stivale2_header sti
     .tags = 0,                                  // No tags means the bootloader will give us CGA text mode or bust
 };
 
+void main(void);
+
 void _start(struct stivale2_struct *config) {
     (void)config;  // Don't care about stivale data for now
+
+    // TODO: Zero out .bss
+    main();
     while (true) {
     }
+}
+
+void main(void) {
+    vga_clear();
+    vga_printf("Hello\n");
 }
