@@ -27,15 +27,31 @@ static void vga_newline(void) {
     VGA_CURSOR_Y++;
 }
 
-static void vga_putc(const char c) {
+static void vga_set(char c, size_t x, size_t y) {
     const uint16_t vga_char = (uint16_t)c | VGA_WHITE_ON_BLACK_NOBLINK;
+    VGA_TEXTBUF[(VGA_TEXTBUF_WIDTH * y) + x] = vga_char;
+}
 
+static void vga_scroll_up(void) {
+    // Move lines up by 1 to make bottom-most one free
+    for (size_t y = 0; y < VGA_TEXTBUF_HEIGHT; y++) {
+        memcpy_volatile(&VGA_TEXTBUF[VGA_TEXTBUF_WIDTH * y], &VGA_TEXTBUF[VGA_TEXTBUF_WIDTH * (y + 1)],
+                        VGA_TEXTBUF_WIDTH * sizeof(uint16_t));
+    }
+
+    // Blank the bottom-most one
+    for (size_t x = 0; x < VGA_TEXTBUF_WIDTH; x++) {
+        vga_set(' ', x, VGA_TEXTBUF_HEIGHT - 1);
+    }
+}
+
+static void vga_putc(const char c) {
     switch (c) {
         case '\n':
             vga_newline();
             break;
         default:
-            VGA_TEXTBUF[(VGA_TEXTBUF_WIDTH * VGA_CURSOR_Y) + VGA_CURSOR_X] = vga_char;
+            vga_set(c, VGA_CURSOR_X, VGA_CURSOR_Y);
             VGA_CURSOR_X++;
             break;
     }
@@ -45,9 +61,9 @@ static void vga_putc(const char c) {
     }
 
     if (VGA_CURSOR_Y >= VGA_TEXTBUF_HEIGHT) {
-        VGA_CURSOR_Y = 0;
+        vga_scroll_up();
+        VGA_CURSOR_Y = VGA_TEXTBUF_HEIGHT - 1;
     }
-    // TODO: Scrolling etc. (if even needed, bootloader shouldn't produce that much output)
 }
 
 void vga_vprintf(const char* format, va_list vlist) {

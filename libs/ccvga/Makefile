@@ -22,6 +22,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 ASFLAGS +=
+CFLAGS  += -std=c18
 CFLAGS  += -O0 -g
 
 MKDIR_P ?= mkdir -p
