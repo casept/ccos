@@ -27,3 +27,14 @@ volatile void* memset_volatile(volatile void* dest, int ch, size_t count) {
 
     return dest;
 }
+
+volatile void* memcpy_volatile(volatile void* dest, const volatile void* src, size_t count) {
+    volatile unsigned char* dest_uc = (volatile unsigned char*)dest;
+    const volatile unsigned char* src_uc = (const volatile unsigned char*)src;
+
+    for (size_t i = 0; i < count; i++) {
+        dest_uc[i] = src_uc[i];
+    }
+
+    return dest;
+}
