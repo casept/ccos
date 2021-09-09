@@ -97,6 +97,14 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                     sint = va_arg(vlist, int);
                     vprintf_sint_to_decimal(sink, sint);
                     break;
+                case 'b':
+                    // This one is non-standard. It prints an unsigned integer as binary.
+                    uint = va_arg(vlist, unsigned int);
+                    vprintf_uint_to_base(sink, uint, 2);
+                    break;
+                case '%':
+                    sink('%');
+                    break;
                 default:
                     return -1;
                     break;
