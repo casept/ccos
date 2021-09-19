@@ -7,7 +7,9 @@
 
 ## Build system
 
-* [ ] Switch from cmake to GNU make
+* [X] Switch from cmake to GNU make
+* [ ] Make kernel image build without root
+* [ ] Allow setting per-target debug/release
 
 ## Bootloader
 
@@ -22,13 +24,17 @@
 
 ## Kernel
 
-* [ ] Get basic text output working (maybe via stivale2 console at first)
-* [ ] Write a VGA text mode driver
+* [X] Get basic text output working (maybe via stivale2 console at first)
+* [x] Write a VGA text mode driver
 * [ ] Write a (PS/2) keyboard driver
 * [ ] Write a simple debug shell
-* [ ] Write a filesystem driver (FAT32 would be easy, but need to clear up whether M$ still has patent on VFAT)
+* [ ] Write an ext2 filesystem
 * [ ] Put fundamental microkernel abstractions in place
+  * [ ] Interrupts
+  * [ ] System timer
   * [ ] Memory protection
   * [ ] Processes
+    * [ ] Scheduling
+    * [ ] ELF loading
   * [ ] Message passing
   * [ ] Move drivers out of the kernel
