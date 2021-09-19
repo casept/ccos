@@ -18,7 +18,7 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d) ../libs/ccvga/include/
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS += -std=gnu18
+CFLAGS += -std=gnu2x
 CFLAGS += -O0 -g
 CFLAGS += -mcmodel=kernel
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
@@ -114,7 +114,10 @@ run_debug: $(BUILD_DIR)/cccore.img
 	qemu-system-x86_64 -machine q35 -fda $(BUILD_DIR)/cccore.img -s -S
 
 run_limine: $(BUILD_DIR)/cccore_limine.img
-	qemu-system-x86_64 -machine q35 -hda $(BUILD_DIR)/cccore_limine.img
+	qemu-system-x86_64 -machine q35 -d guest_errors,cpu_reset -no-reboot -hda $(BUILD_DIR)/cccore_limine.img
 
 run_limine_debug: $(BUILD_DIR)/cccore_limine.img
 	qemu-system-x86_64 -machine q35 -hda $(BUILD_DIR)/cccore_limine.img -s -S
+
+run_limine_bochs: $(BUILD_DIR)/cccore_limine.img
+	bochs -q
