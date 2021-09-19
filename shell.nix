@@ -6,6 +6,7 @@ in pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     # Dev tooling
     bear
+    bochs
     coreutils
     clang-tools
     cppcheck
