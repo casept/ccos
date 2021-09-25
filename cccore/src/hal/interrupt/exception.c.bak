@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include "../../common.h"
-#include "../include/interrupt.h"
 
 #define EXCEPTION_NUM_VECTORS 32
 

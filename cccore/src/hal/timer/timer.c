@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../interrupt/pic.h"
+#include "../interrupt/controller/pic.h"
 #include "include/interrupt.h"
 #include "include/io_port.h"
 

@@ -2,7 +2,6 @@
 #include <stddef.h>
 
 #include "common.h"
-#include "hal/include/exception.h"
 #include "hal/include/gdt.h"
 #include "hal/include/interrupt.h"
 #include "hal/include/timer.h"
@@ -39,7 +38,6 @@ void kmain(void) {
 
     gdt_init_flat();
     interrupt_init();
-    exception_register_handlers();
     timer_enable(100, test_timer);
     interrupt_enable();
     kprintf("Timer interrupts enabled\n");

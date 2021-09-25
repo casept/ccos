@@ -2,20 +2,26 @@
 
 #include <stdint.h>
 
-/// Initialize relevant data structures and hardware for processing interrupts.
+/// Initialize relevant data structures and hardware for processing exceptions.
+///
+/// Also register default handlers for all interrupts and CPU exceptions.
+/// These simply log the occurrence to debug output and halt the machine.
 void interrupt_init(void);
 
-/// Signature that all ISRs must obey.
+/// Signature that all custom ISRs must obey.
 typedef void (*isr_t)(void);
 
-/// Registers a new interrupt handler.
+/// Register a non-default interrupt handler.
 void interrupt_register(isr_t isr, uint8_t idt_slot);
 
-/// Acknowledges the interrupt to whatever interrupt controller underlies it.
+/// Acknowledge the interrupt to whatever interrupt controller underlies it.
+///
+/// Your non-default interrupt handlers must call this if appropriate.
+/// Do not call this for interrupts that are CPU-internal (AKA exceptions), which don't have a controller.
 void interrupt_ack(uint8_t idt_slot);
 
-/// Enables interrupts.
+/// Enable interrupts.
 void interrupt_enable(void);
 
-/// Disables interrupts.
+/// Disable interrupts.
 void interrupt_disable(void);
