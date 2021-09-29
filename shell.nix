@@ -3,6 +3,8 @@ let
   niv = import sources.niv { inherit sources; };
   pkgs = import sources.nixpkgs { };
 in pkgs.mkShell {
+  # So locale doesn't break on non-nixos
+  LOCALE_ARCHIVE_2_27 = "${pkgs.glibcLocales}/lib/locale/locale-archive";
   nativeBuildInputs = with pkgs; [
     # Dev tooling
     bear
