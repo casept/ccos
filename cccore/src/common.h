@@ -7,4 +7,4 @@ void kprint_init(void);
 void kprintf(const char* format, ...);
 
 /// Print message to console and halt system.
-void kpanicf(const char* format, ...);
+void __attribute__((noreturn)) kpanicf(const char* format, ...);

@@ -2,6 +2,7 @@
 
 #include <ccvga.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 void kprint_init(void) { vga_clear(); }
 
@@ -11,10 +12,13 @@ void kprintf(const char* format, ...) {
     vga_vprintf(format, vlist);
 }
 
-void kpanicf(const char* format, ...) {
+void __attribute__((noreturn)) kpanicf(const char* format, ...) {
     vga_printf("PANIC: ");
     va_list vlist;
     va_start(vlist, format);
     vga_vprintf(format, vlist);
     __asm__ volatile("hlt");
+    // To make the stupid compiler happy
+    while (true) {
+    }
 }

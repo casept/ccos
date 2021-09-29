@@ -44,11 +44,36 @@ static __attribute__((aligned(16))) __attribute__((used)) struct idt_info_t IDT_
 };
 
 /// This table stores C interrupt handlers, if defined.
-static uintptr_t INT_HANDLERS[IDT_NUM_ENTRIES];
+static isr_t INT_HANDLERS[IDT_NUM_ENTRIES];
 
 /// This table stores addresses of ASM stubs.
 /// These are actually written into the IDT.
 extern uintptr_t ISR_TABLE[IDT_NUM_ENTRIES];
+
+/// This structure describes the order in which the ASM interrupt service routine pushes registers and other data onto
+/// the stack. It's defined to allow easy access to this data.
+struct __attribute__((__packed__)) isr_data_t {
+    // Machine registers
+    uint64_t rax;
+    uint64_t rbx;
+    uint64_t rcx;
+    uint64_t rdx;
+    uint64_t rsi;
+    uint64_t rdi;
+    uint64_t rbp;
+    uint64_t r8;
+    uint64_t r9;
+    uint64_t r10;
+    uint64_t r11;
+    uint64_t r12;
+    uint64_t r13;
+    uint64_t r14;
+    uint64_t r15;
+
+    // Data added by CPU or ASM ISR stub
+    uint64_t int_num;
+    uint64_t int_arg;
+};
 
 /// Construct a selector into the GDT for use in an IDT entry.
 static idt_selector_t idt_selector_create(void) { return SELECTOR_PRIVILEGE_RING0 | SELECTOR_TABLE_GDT | GDT_CODE_IDX; }
@@ -86,7 +111,7 @@ void interrupt_init(void) {
 
     // No C handlers have been defined yet; clear the table
     for (size_t i = 0; i < IDT_NUM_ENTRIES; i++) {
-        INT_HANDLERS[i] = (uintptr_t)NULL;
+        INT_HANDLERS[i] = NULL;
     };
 
     __asm__ volatile(
@@ -99,7 +124,7 @@ void interrupt_init(void) {
     // TODO: Install handler for spurious PIC interrupts
 }
 
-void interrupt_register(isr_t isr, uint8_t idt_slot) { INT_HANDLERS[(size_t)idt_slot] = (uintptr_t)isr; }
+void interrupt_register(isr_t isr, uint8_t idt_slot) { INT_HANDLERS[(size_t)idt_slot] = isr; }
 
 void interrupt_enable(void) { __asm__ volatile("sti"); }
 
@@ -115,4 +140,12 @@ void interrupt_ack(uint8_t idt_slot) {
 
 /// Called by ASM to dispatch interrupts to the appropriate C handler registered in `INT_HANDLERS`.
 /// TODO: Implement
-void isr_dispatch(void) { kpanicf("Got interrupt"); }
+void isr_dispatch(struct isr_data_t* data) {
+    // Do we have a registered C ISR for this?
+    isr_t handler = INT_HANDLERS[(size_t)data->int_num];
+    if (handler != NULL) {
+        handler();
+    } else {
+        kpanicf("Got unhandled interrupt number %u with argument %u", data->int_num, data->int_arg);
+    }
+}

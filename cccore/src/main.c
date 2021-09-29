@@ -41,16 +41,5 @@ void kmain(void) {
     timer_enable(100, test_timer);
     interrupt_enable();
     kprintf("Timer interrupts enabled\n");
-    __asm__ volatile(
-        ".intel_syntax noprefix  \n\t"
-        "int 0x80                \n\t"
-        ".att_syntax prefix      \n\t");
-
-    /*
-    __asm__ volatile(
-        ".intel_syntax noprefix  \n\t"
-        "mov rax, 0              \n\t"
-        "idiv rax                \n\t"
-        ".att_syntax prefix      \n\t");
-*/
+    // FIXME: PIC ISR/IRR does not show cascade bit as set, is this a real problem or emulator bug?
 }

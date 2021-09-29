@@ -5,6 +5,9 @@
 
 #include "include/io_port.h"
 
+// TODO: Remove
+#include "../../common.h"
+
 // Where the PIC chips are remapped to.
 // Intel reserves vectors up to 0x1F for CPU-internal exceptions, so start right above that range.
 static const uint8_t PIC1_VECTOR_BASE = 0x20;
@@ -39,7 +42,10 @@ enum pic_cmd_t {
     PIC_CMD_EOI = 0x20,
     /// Disable the PIC.
     PIC_CMD_DISABLE = 0xFF,
-
+    /// Read the IRQ ready register.
+    PIC_CMD_READ_IRR = 0x0A,
+    /// Read the in-service register.
+    PIC_CMD_READ_ISR = 0x0B,
 };
 
 uint8_t pic_irq_to_idt_slot(uint8_t irq) { return PIC1_VECTOR_BASE + irq; }
@@ -83,10 +89,12 @@ void pic_unmask(uint8_t irq) {
     uint16_t port;
     if (irq < 8) {
         port = PIC1_PORT_DATA;
-    } else {
+    } else if (irq >= 8 && irq < 16) {
         port = PIC2_PORT_DATA;
+    } else {
+        kpanicf("PIC: Attempt to unmask invalid IRQ");
     }
-    const uint8_t mask = port_read_u8(port) | (1 << irq);
+    const uint8_t mask = port_read_u8(port) & ~(1 << irq);
     port_write_u8(port, mask);
 }
 
@@ -94,10 +102,12 @@ void pic_mask(uint8_t irq) {
     uint16_t port;
     if (irq < 8) {
         port = PIC1_PORT_DATA;
-    } else {
+    } else if (irq >= 8 && irq < 16) {
         port = PIC2_PORT_DATA;
+    } else {
+        kpanicf("PIC: Attempt to mask invalid IRQ");
     }
-    const uint8_t mask = port_read_u8(port) & ~(1 << irq);
+    const uint8_t mask = port_read_u8(port) | (1 << irq);
     port_write_u8(port, mask);
 }
 
@@ -110,5 +120,17 @@ void pic_ack(uint8_t irq) {
 }
 
 bool pic_idt_is_managed(uint8_t idt_slot) {
-    return (idt_slot >= PIC1_VECTOR_BASE) && (idt_slot <= (PIC2_VECTOR_BASE + 8));
+    return (idt_slot >= PIC1_VECTOR_BASE) && idt_slot <= (PIC2_VECTOR_BASE + 7);
+}
+
+uint16_t pic_get_irr(void) {
+    port_write_u8(PIC1_PORT_CMD, PIC_CMD_READ_IRR);
+    port_write_u8(PIC2_PORT_CMD, PIC_CMD_READ_IRR);
+    return (port_read_u8(PIC1_PORT_CMD) << 8) | port_read_u8(PIC2_PORT_CMD);
+}
+
+uint16_t pic_get_isr(void) {
+    port_write_u8(PIC1_PORT_CMD, PIC_CMD_READ_ISR);
+    port_write_u8(PIC2_PORT_CMD, PIC_CMD_READ_ISR);
+    return (port_read_u8(PIC1_PORT_CMD) << 8) | port_read_u8(PIC2_PORT_CMD);
 }

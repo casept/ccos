@@ -24,5 +24,11 @@ uint8_t pic_irq_to_idt_slot(uint8_t irq);
 /// Calculate which IRQ corresponds to the IDT slot, if any.
 uint8_t pic_idt_slot_to_irq(uint8_t idt_slot);
 
-/// Check whether the given IDT entry is managed by the PIC.
+/// Check whether the given IDT entry is managed by a PIC.
 bool pic_idt_is_managed(uint8_t idt_slot);
+
+/// Read the IRQ ready registers of both PICs.
+uint16_t pic_get_irr(void);
+
+/// Read the in-service registers of both PICs.
+uint16_t pic_get_isr(void);

@@ -15,7 +15,10 @@ SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.asm)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d) ../libs/ccvga/include/
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_DIRS += ../libs/ccvga/include/
+INC_DIRS += ../libs/ccnonstd/include/
+INC_DIRS += ../libs/cclibc/include/
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CFLAGS += -std=gnu2x
@@ -23,7 +26,12 @@ CFLAGS += -O0 -g
 CFLAGS += -mcmodel=kernel
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 # FIXME: Recompile with libgcc without redzone
-LDFLAGS += -nostdlib -L../libs/cclibc/build-x86_64-unknown-elf-gcc -L../libs/ccnonstd/build-x86_64-unknown-elf-gcc -L../libs/ccelf/build-x86_64-unknown-elf-gcc -L../libs/ccvga/build-x86_64-unknown-elf-gcc -l:ccelf.a -l:ccvga.a -l:ccnonstd.a -l:cclibc.a -T cccore.lds -zmax-page-size=0x1000 -static -ztext -mcmodel=kernel
+LDFLAGS += -nostdlib -L../libs/cclibc/build-x86_64-unknown-elf-gcc
+LDFLAGS += -L../libs/ccnonstd/build-x86_64-unknown-elf-gcc
+LDFLAGS +=  -L../libs/ccelf/build-x86_64-unknown-elf-gcc
+LDFLAGS += -L../libs/ccvga/build-x86_64-unknown-elf-gcc
+LDFLAGS += -l:ccelf.a -l:ccvga.a -l:ccnonstd.a -l:cclibc.a
+LDFLAGS += -T cccore.lds -zmax-page-size=0x1000 -static -ztext -mcmodel=kernel
 ASFLAGS +=
 
 MKDIR_P ?= mkdir -p

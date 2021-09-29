@@ -14,7 +14,6 @@ isr_common:
 	push r10
 	push r9
 	push r8
-	push rsp
 	push rbp
 	push rdi
 	push rsi
@@ -24,6 +23,10 @@ isr_common:
 	push rax
 
 	//; Call C function that actually performs interrupt handler dispatch.
+	//; This C function needs to be able to use arbitrary registers (for example, for syscall argument passing),
+	//; as well as the interrupt number and argument.
+	//; These have been stored on the stack by either the stub that called us or the CPU.
+	mov rdi, rsp
 	call isr_dispatch
 
 	//; Restore all previously saved registers.
@@ -34,7 +37,6 @@ isr_common:
 	pop rsi
 	pop rdi
 	pop rbp
-	pop rsp
 	pop r8
 	pop r9
 	pop r10
@@ -43,3 +45,7 @@ isr_common:
 	pop r13
 	pop r14
 	pop r15
+
+	//; Remove argument and ISR number before returning.
+	add rsp, 2*8
+	iretq

@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "../common.h"
 #include "../interrupt/controller/pic.h"
 #include "include/interrupt.h"
 #include "include/io_port.h"
@@ -20,11 +21,8 @@ static const uint8_t PIT_BINARY = 0b00000000;
 
 timer_callback_t PIT_CALLBACK = NULL;
 
-// Declared in ASM file
-extern void pit_isr(void);
-
 /// Called by the ASM stub and performs the parts of IRQ handling that can be done in C.
-void pit_isr_c(void) {
+void pit_isr(void) {
     interrupt_ack(pic_idt_slot_to_irq(PIT_IRQ));
     PIT_CALLBACK();
 }
@@ -54,6 +52,8 @@ static void pit_enable(uint32_t tickrate_hz, timer_callback_t callback) {
     interrupt_register(pit_isr, pic_irq_to_idt_slot(PIT_IRQ));
 
     interrupt_enable();
+    kprintf("PIC IRR: %b\n", pic_get_irr());
+    kprintf("PIC ISR: %b\n", pic_get_isr());
 }
 
 void timer_enable(uint32_t tickrate_hz, timer_callback_t callback) {
