@@ -7,6 +7,7 @@
 #include "hal/include/interrupt.h"
 #include "hal/include/timer.h"
 #include "stivale2.h"
+#include "thread/include/thread.h"
 
 #define STACK_SIZE 4096
 static uint8_t stack[STACK_SIZE];
@@ -32,6 +33,8 @@ void _start(struct stivale2_struct *config) {
 
 void test_timer(void) { kprintf("Tick\n"); }
 
+void test_thread(void) { kprintf("Thread is running"); }
+
 void kmain(void) {
     interrupt_disable();
     kprint_init();
@@ -43,4 +46,7 @@ void kmain(void) {
 
     timer_enable(100, test_timer);
     interrupt_enable();
+
+    thread_tid_t test_tid;
+    thread_create(test_thread, &test_tid);
 }
