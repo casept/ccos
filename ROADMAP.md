@@ -30,8 +30,8 @@
 * [ ] Write a simple debug shell
 * [ ] Write an ext2 filesystem
 * [ ] Put fundamental microkernel abstractions in place
-  * [ ] Interrupts
-  * [ ] System timer
+  * [X] Interrupts
+  * [X] System timer
   * [ ] Memory protection
   * [ ] Processes
     * [ ] Scheduling
