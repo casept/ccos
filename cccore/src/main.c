@@ -2,6 +2,7 @@
 #include <stddef.h>
 
 #include "common.h"
+#include "hal/include/exception.h"
 #include "hal/include/gdt.h"
 #include "hal/include/interrupt.h"
 #include "hal/include/timer.h"
@@ -38,8 +39,8 @@ void kmain(void) {
 
     gdt_init_flat();
     interrupt_init();
+    exception_register_default();
+
     timer_enable(100, test_timer);
     interrupt_enable();
-    kprintf("Timer interrupts enabled\n");
-    // FIXME: PIC ISR/IRR does not show cascade bit as set, is this a real problem or emulator bug?
 }

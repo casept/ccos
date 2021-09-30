@@ -36,7 +36,22 @@ void gdt_init_flat(void) {
     // 64-bit data descriptor not needed because we don't use compatibility mode
 
     __asm__ volatile(
-        ".intel_syntax noprefix  \n\t"
-        "lgdt [GDT_INFO]         \n\t"
-        ".att_syntax prefix      \n\t");
+        ".intel_syntax noprefix \n\t"
+        "wbinvd                 \n\t"  // Flush CPU caches
+        "lgdt [GDT_INFO]        \n\t"
+        "mov ax, 0              \n\t"  // https://forum.osdev.org/viewtopic.php?f=1&t=31557&start=0
+        "mov ss, ax             \n\t"
+        "mov ds, ax             \n\t"
+        "mov es, ax             \n\t"
+        "mov fs, ax             \n\t"
+        "mov gs, ax             \n\t"
+        "lea rax, [rip + 0x05]  \n\t"  // Note that instructions have variable sizes
+        "pushq 0x08             \n\t"
+        "pushq rax              \n\t"
+        "retfq                  \n\t"
+        ".flush:                \n\t"
+        ".att_syntax prefix     \n\t"
+        :
+        :
+        : "rax");
 }

@@ -22,8 +22,10 @@ static const uint8_t PIT_BINARY = 0b00000000;
 timer_callback_t PIT_CALLBACK = NULL;
 
 /// Called by the ASM stub and performs the parts of IRQ handling that can be done in C.
-void pit_isr(void) {
-    interrupt_ack(pic_idt_slot_to_irq(PIT_IRQ));
+void pit_isr(struct interrupt_isr_data_t *data) {
+    (void)data;
+
+    interrupt_ack(pic_irq_to_idt_slot(PIT_IRQ));
     PIT_CALLBACK();
 }
 
@@ -50,10 +52,6 @@ static void pit_enable(uint32_t tickrate_hz, timer_callback_t callback) {
     PIT_CALLBACK = callback;
     // TODO: Build better abstraction to decouple from PIC
     interrupt_register(pit_isr, pic_irq_to_idt_slot(PIT_IRQ));
-
-    interrupt_enable();
-    kprintf("PIC IRR: %b\n", pic_get_irr());
-    kprintf("PIC ISR: %b\n", pic_get_isr());
 }
 
 void timer_enable(uint32_t tickrate_hz, timer_callback_t callback) {

@@ -17,7 +17,7 @@ void __attribute__((noreturn)) kpanicf(const char* format, ...) {
     va_list vlist;
     va_start(vlist, format);
     vga_vprintf(format, vlist);
-    __asm__ volatile("hlt");
+    __asm__ volatile("cli; hlt");
     // To make the stupid compiler happy
     while (true) {
     }

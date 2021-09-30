@@ -9,4 +9,6 @@ typedef void (*timer_callback_t)(void);
 /// to the desired rate that the timer supports.
 ///
 /// Interrupt subsystem must be initialized before calling this.
+///
+/// Also, interrupts must be enabled for the timer to work.
 void timer_enable(uint32_t tickrate_hz, timer_callback_t callback);

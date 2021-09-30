@@ -89,7 +89,7 @@ void pic_unmask(uint8_t irq) {
     uint16_t port;
     if (irq < 8) {
         port = PIC1_PORT_DATA;
-    } else if (irq >= 8 && irq < 16) {
+    } else if (irq < 16) {
         port = PIC2_PORT_DATA;
     } else {
         kpanicf("PIC: Attempt to unmask invalid IRQ");
@@ -102,7 +102,7 @@ void pic_mask(uint8_t irq) {
     uint16_t port;
     if (irq < 8) {
         port = PIC1_PORT_DATA;
-    } else if (irq >= 8 && irq < 16) {
+    } else if (irq < 16) {
         port = PIC2_PORT_DATA;
     } else {
         kpanicf("PIC: Attempt to mask invalid IRQ");
