@@ -14,3 +14,17 @@ Tools other than the toolchain can be pulled in via Nix:
 nix-shell
 make -j$(nproc)
 ```
+
+### Mac (unsupported)
+the mac port is unstable and needs a lot of manual fixing.
+ccboot build is unsupported. Only cccore with limine bootloader works.
+
+install the following brew packages
+```shell
+brew install util-linux # needed for sfdisk
+brew install x86_64-elf-gcc # needed for cross compiling
+brew install qemu # emulation. bochs should also work 
+```
+
+you need to relink the `toolchains/x86_64-unknown-elf-gcc.mk` to the mac version `toolchains/x86_64-unknown-elf-gcc-mac.mk`
+
