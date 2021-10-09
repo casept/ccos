@@ -31,9 +31,19 @@ void _start(struct stivale2_struct *config) {
     }
 }
 
-void test_timer(void) { kprintf("Tick\n"); }
+void test_timer(void) { /*kprintf("Tick\n");*/
+}
 
-void test_thread(void) { kprintf("Thread is running"); }
+void test_thread_1(void) {
+    while (true) {
+        kprintf("Thread1 is running\n");
+    }
+}
+void test_thread_2(void) {
+    while (true) {
+        kprintf("Thread2 is running\n");
+    }
+}
 
 void kmain(void) {
     interrupt_disable();
@@ -47,6 +57,9 @@ void kmain(void) {
     timer_enable(100, test_timer);
     interrupt_enable();
 
-    thread_tid_t test_tid;
-    thread_create(test_thread, &test_tid);
+    thread_threading_init();
+    thread_dump_state(0);
+    kprintf("-----------\n");
+    thread_dump_state(0);
+    thread_switch_idle();
 }
