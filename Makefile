@@ -23,5 +23,5 @@ clean:
 run: ccboot cccore
 	$(MAKE) -C cccore run
 
-run_limine: ccboot cccore
+run_limine: cccore
 	$(MAKE) -C cccore run_limine

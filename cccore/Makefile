@@ -90,18 +90,10 @@ $(BUILD_DIR)/cccore.img: $(BUILD_DIR)/cccore.elf ccboot
 # This could probably be worked around by formatting the file,
 # using dd to copy only the partition to a separate file,
 # manipulating that using e2tools and then merging it back together.
+
+# SHELL Script is used because Colons don't work in the command block but are needed for the e2tools commands.
 $(BUILD_DIR)/cccore_limine.img: $(BUILD_DIR)/cccore.elf limine/limine.cfg limine/limine.sys
-	dd conv=sync if=/dev/zero of=$(BUILD_DIR)/cccore_limine.img bs=512 count=20480
-	echo 'type=83' | sfdisk $(BUILD_DIR)/cccore_limine.img
-	limine-install $(BUILD_DIR)/cccore_limine.img
-	mkfs.ext2 -F -E offset=1048576 $(BUILD_DIR)/cccore_limine.img
-	sudo $(MKDIR_P) /cccore
-	sudo mount -o loop,offset=1048576 $(BUILD_DIR)/cccore_limine.img /cccore
-	sudo $(MKDIR_P) /cccore/boot
-	sudo cp limine/limine.cfg /cccore/boot/
-	sudo cp limine/limine.sys /cccore/boot/
-	sudo cp $(BUILD_DIR)/cccore.elf /cccore/boot/
-	sudo umount /cccore
+	./do_not_invoke_manually_image_prepare.sh $(BUILD_DIR)
 
 clean:
 	$(RM) -r $(BUILD_DIR)
@@ -112,6 +104,7 @@ clean_recursive:
 	$(MAKE) TARGET_TRIPLE=x86_64-unknown-elf-gcc -C ../libs/ccnonstd clean
 	$(MAKE) TARGET_TRIPLE=x86_64-unknown-elf-gcc -C ../libs/ccvga clean
 	$(MAKE) TARGET_TRIPLE=x86_64-unknown-elf-gcc -C ../libs/ccelf clean
+
 
 -include $(DEPS)
 
