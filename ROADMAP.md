@@ -26,6 +26,7 @@
 
 * [X] Get basic text output working (maybe via stivale2 console at first)
 * [x] Write a VGA text mode driver
+* [X] Write a serial debug driver
 * [ ] Write a (PS/2) keyboard driver
 * [ ] Write a simple debug shell
 * [ ] Write an ext2 filesystem
