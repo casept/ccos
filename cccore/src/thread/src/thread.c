@@ -75,22 +75,22 @@ static void save_cpu_state(struct thread_cpu_state_t cpu, struct thread_t* t) {
 static void prepare_stack(thread_register_t pc, thread_register_t sp, struct thread_t* t) {
     const struct thread_cpu_state_t cpu = {
         .rip = pc,
-        .rax = 0,
-        .rbx = 0,
-        .rcx = 0,
-        .rdx = 0,
-        .rsi = 0,
-        .rdi = 0,
+        .rax = 1,
+        .rbx = 2,
+        .rcx = 3,
+        .rdx = 4,
+        .rsi = 5,
+        .rdi = 6,
         .rsp = sp,
         .rbp = sp,  // FIXME: This causes thread to do weird things when it has no more instructions
-        .r8 = 0,
-        .r9 = 0,
-        .r10 = 0,
-        .r11 = 0,
-        .r12 = 0,
-        .r13 = 0,
-        .r14 = 0,
-        .r15 = 0,
+        .r8 = 7,
+        .r9 = 8,
+        .r10 = 9,
+        .r11 = 10,
+        .r12 = 11,
+        .r13 = 12,
+        .r14 = 13,
+        .r15 = 14,
     };
     save_cpu_state(cpu, t);
 }
