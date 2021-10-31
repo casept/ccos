@@ -1,48 +1,23 @@
 #pragma once
 
+#include <stddef.h>
+
 #include "../src/tcb.h"
+#include "interrupt.h"
 
-typedef uint64_t thread_register_t;
-
-/// Data structure holding the thread's CPU state.
+/// Prepare a switch to the given thread, by storing old thread's state and loading new thread's registers onto the
+/// stack, where the ISR will load them back into the CPU.
 ///
-/// NOTE: This is used by ASM code!
-/// Never change anything about this struct without also adjusting that code.
-struct __attribute__((packed)) thread_cpu_state_t {
-    thread_register_t r15;
-    thread_register_t r14;
-    thread_register_t r13;
-    thread_register_t r12;
-    thread_register_t r11;
-    thread_register_t r10;
-    thread_register_t r9;
-    thread_register_t r8;
-
-    thread_register_t rbp;
-    thread_register_t rsp;
-    thread_register_t rdi;
-    thread_register_t rsi;
-    thread_register_t rdx;
-    thread_register_t rcx;
-    thread_register_t rbx;
-    thread_register_t rax;
-
-    thread_register_t
-        rip;  // Must be down here because it's the last thing popped on thread switch via retq instruction.
-};
-
-/// Switch to the given thread.
+/// Returns `-1` if the new (or old) thread does not exist.
 ///
-/// Returns `-1` if the thread does not exist.
-///
-/// Does not return on success, because the execution changes from kernel to the thread.
-int thread_switch(struct thread_cpu_state_t old_thread_cpu_state, thread_tid_t old_thread_tid,
-                  thread_tid_t new_thread_tid);
+/// Returns `0` if preparations went OK.
+int thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread_tid_t old_thread_tid,
+                          thread_tid_t new_thread_tid, struct interrupt_isr_data_t *isr_data);
 
-/// Switch to the idle thread.
+/// Kick the entire thread machinery into gear by switching to the idle thread and leaving the kernel's main function.
 ///
-/// Will panic on failure.
-void __attribute__((noreturn)) thread_switch_idle(void);
+/// You should only call this once, and only outside an interrupt handler.
+void __attribute__((noreturn)) thread_go(void);
 
 /// Signature that all thread entrypoint functions must obey.
 typedef void (*thread_entrypoint_t)(void);
@@ -54,21 +29,24 @@ void thread_threading_init(void);
 
 /// Create a new thread.
 ///
-/// Returns `-1` if thread could not be created due to lack of resources.
+/// Return `-1` if thread could not be created due to lack of resources.
 ///
-/// Returns `0` on success.
+/// Return `0` on success.
 ///
 /// The new thread's TID is written into the outparam.
 int thread_create(thread_entrypoint_t entry, thread_tid_t *tid);
 
 /// Destroy the thread and reclaim it's resources.
 ///
-/// Returns `-1` if a thread with given ID does not exist.
+/// Return `-1` if a thread with given ID does not exist.
 ///
-/// Returns `0` on success.
+/// Return `0` on success.
 int thread_destroy(thread_tid_t tid);
 
-/// Dumps the thread content with kprintf.
+/// Dump the thread state with kprintf.
 ///
-/// panics when thread does not exists.
+/// Panic when thread does not exist.
 void thread_dump_state(thread_tid_t tid);
+
+/// Get TID of the currently active thread.
+thread_tid_t thread_get_current_tid(void);

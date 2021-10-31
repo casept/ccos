@@ -2,6 +2,8 @@
 
 .extern isr_disptach
 
+//; FIXME: This assumes we were in userspace when interrupt arrived
+
 .global isr_common
 isr_common:
 	//; Push all registers.

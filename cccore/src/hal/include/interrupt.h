@@ -28,7 +28,10 @@ struct __attribute__((__packed__)) interrupt_isr_data_t {
     uint64_t int_arg;
 
     // Data added by CPU
-    uint64_t int_return;
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t rflags;
+    uint64_t rsp;
 };
 
 /// Signature that all custom ISRs must obey.

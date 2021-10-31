@@ -26,7 +26,7 @@ void pit_isr(struct interrupt_isr_data_t *data) {
     (void)data;
 
     interrupt_ack(pic_irq_to_idt_slot(PIT_IRQ));
-    PIT_CALLBACK();
+    PIT_CALLBACK(data);
 }
 
 /// Programs the legacy PIT timer.

@@ -7,7 +7,9 @@
 #include "hal/include/interrupt.h"
 #include "hal/include/timer.h"
 #include "stivale2.h"
+#include "tcb.h"
 #include "thread/include/thread.h"
+#include "thread/sched/include/sched.h"
 
 #define STACK_SIZE 4096
 static uint8_t stack[STACK_SIZE];
@@ -31,7 +33,46 @@ void _start(struct stivale2_struct *config) {
     }
 }
 
-void test_timer(void) { /*kprintf("Tick\n");*/
+static struct thread_cpu_state_t isr_data_2_cpu_state(const struct interrupt_isr_data_t *const data) {
+    struct thread_cpu_state_t t_cpu;
+    t_cpu.rax = data->rax;
+    t_cpu.rbx = data->rbx;
+    t_cpu.rcx = data->rcx;
+    t_cpu.rdx = data->rdx;
+    t_cpu.r8 = data->r8;
+    t_cpu.r9 = data->r9;
+    t_cpu.r10 = data->r10;
+    t_cpu.r11 = data->r11;
+    t_cpu.r12 = data->r12;
+    t_cpu.r13 = data->r13;
+    t_cpu.r14 = data->r14;
+    t_cpu.r15 = data->r15;
+    t_cpu.rdi = data->rdi;
+    t_cpu.rsi = data->rsi;
+    t_cpu.rbp = data->rbp;
+    t_cpu.rip = data->rip;
+    t_cpu.rsp = data->rsp;
+
+    return t_cpu;
+}
+
+static void timer(struct interrupt_isr_data_t *isr_data) {
+    kprintf("Tick\n");
+    // Convert CPU state to format expected by thread subsystem
+    struct thread_cpu_state_t t_cpu = isr_data_2_cpu_state(isr_data);
+
+    // TODO: Let thread switcher load registers as expected
+    // For now, just letting the old process run again is good enough
+
+    // Let scheduler pick next thread to run
+    const thread_tid_t tid_new = thread_sched_round_robin();
+    const thread_tid_t tid_old = thread_get_current_tid();
+    // TODO: Remove
+    kprintf("main(): Next scheduled TID is %d\n", tid_new);
+    thread_switch_prepare(t_cpu, tid_old, tid_new, isr_data);
+
+    // Return from ISR, causing the interrupt handler to load the registers
+    return;
 }
 
 void test_thread_1(void) {
@@ -54,12 +95,13 @@ void kmain(void) {
     interrupt_init();
     exception_register_default();
 
-    timer_enable(100, test_timer);
+    timer_enable(1, timer);
     interrupt_enable();
 
     thread_threading_init();
-    thread_dump_state(0);
-    kprintf("-----------\n");
-    thread_dump_state(0);
-    thread_switch_idle();
+    thread_tid_t test_1_tid;
+    thread_create(test_thread_1, &test_1_tid);
+    thread_tid_t test_2_tid;
+    thread_create(test_thread_2, &test_2_tid);
+    thread_go();
 }

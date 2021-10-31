@@ -6,7 +6,7 @@
 static const uint8_t INTERRUPT_NUM = 6;
 
 static void ud(struct interrupt_isr_data_t *data) {
-    const uint64_t instr_addr = data->int_return;
+    const uint64_t instr_addr = data->rip;
     kpanicf("UD while executing address 0x%x", instr_addr);
 }
 

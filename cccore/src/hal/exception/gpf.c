@@ -6,7 +6,7 @@
 static const uint8_t INTERRUPT_NUM = 13;
 
 static void gpf(struct interrupt_isr_data_t *data) {
-    const uint64_t instr_addr = data->int_return;
+    const uint64_t instr_addr = data->rip;
     const uint64_t selector = data->int_arg;
 
     if (selector != 0) {
