@@ -1,1 +1,0 @@
-x86_64-unknown-elf-gcc-linux.mk
