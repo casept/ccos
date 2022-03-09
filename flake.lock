@@ -1,0 +1,93 @@
+{
+  "nodes": {
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1644229661,
+        "narHash": "sha256-1YdnJAsNy69bpcjuoKdOYQX0YxZBiCYZo4Twxerqv7k=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "3cecb5b042f7f209c56ffd8371b2711a290ec797",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_2": {
+      "locked": {
+        "lastModified": 1620759905,
+        "narHash": "sha256-WiyWawrgmyN0EdmiHyG2V+fqReiVi8bM9cRdMaKQOFg=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "b543720b25df6ffdfcf9227afafc5b8c1fabfae8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "nix-direnv": {
+      "inputs": {
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1646649202,
+        "narHash": "sha256-Y0lFDVcIO3fTS8vLxSwWTbJ5mk1jHKKC+eR4+Od3uKQ=",
+        "owner": "nix-community",
+        "repo": "nix-direnv",
+        "rev": "b4cdd0c3beeaf999df42a3d42fe7396961c402b4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nix-direnv",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1622059058,
+        "narHash": "sha256-t1/ZMtyxClVSfcV4Pt5C1YpkeJ/UwFF3oitLD7Ch/UA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "84aa23742f6c72501f9cc209f29c438766f5352d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1646845518,
+        "narHash": "sha256-xbPAJJrA/o4zpa0sIFph8NOHYXf/5yJm/yPBxhtcyvY=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2db369d1dcde6f79f5ff8d8a91d222e2213bec4a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nix-direnv": "nix-direnv",
+        "nixpkgs": "nixpkgs_2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

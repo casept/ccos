@@ -6,3 +6,5 @@
 **/build-i686-unknown-elf-gcc/
 docs-3rdparty/
 compile_commands.json
+.direnv/
+.DS_Store/
