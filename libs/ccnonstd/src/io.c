@@ -10,55 +10,7 @@
 static void vprintf_uint_to_base(const vprintf_sink sink, unsigned int x, unsigned int base, int padding) {
     const char* digits = "0123456789ABCDEF";
 
-    // 0 is a special case
-    if (x == 0) {
-        sink('0');
-        return;
-    }
-
-    // Would be large enough for even a hypothetical machine with 128-bit unsigned int
-    const size_t buf_size = 64;
-    char buf[buf_size];
-    size_t num_digits = 0;
-    memset(buf, '\0', buf_size * sizeof(char));
-
-    for (size_t i = 0; i < buf_size && x != 0; i++) {
-        num_digits++;
-        const size_t digit = (size_t)(x % base);
-        buf[i] = digits[digit];
-        x /= base;
-    }
-
-    if (x != 0) {
-        digits++;
-        const size_t digit = (size_t)x;
-        sink(digits[digit]);
-    }
-
-    // Add padding digits if necessary
-    if (padding != -1 && num_digits < (size_t)padding) {
-        for (size_t i = 0; i < (size_t)padding - num_digits; i++) {
-            sink('0');
-        }
-    }
-
-    // Order of digits is reversed
-    size_t i = buf_size - 1;
-    while (true) {
-        if (buf[i] != '\0') {
-            sink(buf[i]);
-        }
-        if (i == 0) {
-            break;
-        }
-        i--;
-    }
-}
-
-static void vprintf_uint_to_base_long(const vprintf_sink sink, unsigned long long x, unsigned int base, int padding) {
-    const char* digits = "0123456789ABCDEF";
-
-    // 0 is a special case
+    // 0 is a special case, as it would otherwise be printed as an empty string
     if (x == 0) {
         sink('0');
         return;
@@ -72,34 +24,73 @@ static void vprintf_uint_to_base_long(const vprintf_sink sink, unsigned long lon
 
     for (size_t i = 0; i < buf_size; i++) {
         num_digits++;
+        // The last digit is special because we don't want to print leading zeros
+        if (x < base) {
+            buf[i] = digits[x];
+            break;
+        }
         const size_t digit = (size_t)(x % base);
         buf[i] = digits[digit];
         x /= base;
     }
 
-    if (x != 0) {
-        num_digits++;
-        const size_t digit = (size_t)x;
-        sink(digits[digit]);
-    }
-
     // Add padding digits if necessary
     if (padding != -1 && num_digits < (size_t)padding) {
-        for (size_t i = 0; i < (size_t)padding - num_digits; i++) {
+        size_t needed_padding = (size_t)padding - num_digits;
+        for (size_t i = 0; i < needed_padding; i++) {
             sink('0');
         }
     }
 
     // Order of digits is reversed
-    size_t i = buf_size - 1;
-    while (true) {
-        if (buf[i] != '\0') {
-            sink(buf[i]);
-        }
-        if (i == 0) {
+    for (size_t i = buf_size - 1; true; i--) {
+        if (buf[i] == '\0') continue;
+        sink(buf[i]);
+        if (i == 0) break;
+    }
+}
+
+static void vprintf_uint_to_base_long(const vprintf_sink sink, unsigned long long x, unsigned int base, int padding) {
+    const char* digits = "0123456789ABCDEF";
+
+    // 0 is a special case, as it would otherwise be printed as an empty string
+    if (x == 0) {
+        sink('0');
+        return;
+    }
+
+    // Would be large enough for even a hypothetical machine with 128-bit unsigned int
+    const size_t buf_size = 64;
+    char buf[buf_size];
+    size_t num_digits = 0;
+    memset(buf, '\0', buf_size * sizeof(char));
+
+    for (size_t i = 0; i < buf_size; i++) {
+        num_digits++;
+        // The last digit is special because we don't want to print leading zeros
+        if (x < base) {
+            buf[i] = digits[x];
             break;
         }
-        i--;
+
+        const size_t digit = (size_t)(x % base);
+        buf[i] = digits[digit];
+        x /= base;
+    }
+
+    // Add padding digits if necessary
+    if (padding != -1 && num_digits < (size_t)padding) {
+        size_t needed_padding = (size_t)padding - num_digits;
+        for (size_t i = 0; i < needed_padding; i++) {
+            sink('0');
+        }
+    }
+
+    // Order of digits is reversed
+    for (size_t i = buf_size - 1; true; i--) {
+        if (buf[i] == '\0') continue;
+        sink(buf[i]);
+        if (i == 0) break;
     }
 }
 
@@ -178,6 +169,7 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 10, padding);
                         is_long = false;
+                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 10, padding);
@@ -188,9 +180,11 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 16, padding);
                         is_long = false;
+                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 16, padding);
+                        padding = -1;
                     }
                     break;
                 case 'o':
@@ -198,9 +192,11 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 8, padding);
                         is_long = false;
+                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 8, padding);
+                        padding = -1;
                     }
                     break;
                 case 'd':
@@ -208,15 +204,18 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                     // TODO: Handle long
                     x_signed = va_arg(vlist, int);
                     vprintf_sint_to_decimal(sink, x_signed, padding);
+                    padding = -1;
                     break;
                 case 'b':
                     if (is_long) {
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 2, padding);
                         is_long = false;
+                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 2, padding);
+                        padding = -1;
                     }
                     break;
                 case '%':
