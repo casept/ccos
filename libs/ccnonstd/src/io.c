@@ -218,6 +218,29 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                         padding = -1;
                     }
                     break;
+                case 'p':
+                    sink('0');
+                    sink('x');
+                    // Pointers are assumed to be 64-bit
+                    x_long = va_arg(vlist, unsigned long long);
+                    vprintf_uint_to_base_long(sink, x_long, 16, 16);
+                    break;
+                // Non-standard format specifier %w: Print an unsigned integer as "true" (>=1) or "false" (=0)
+                case 'w':
+                    x = va_arg(vlist, unsigned int);
+                    if (x) {
+                        sink('t');
+                        sink('r');
+                        sink('u');
+                        sink('e');
+                    } else {
+                        sink('f');
+                        sink('a');
+                        sink('l');
+                        sink('s');
+                        sink('e');
+                    }
+                    break;
                 case '%':
                     // Escaped literal %
                     sink('%');
