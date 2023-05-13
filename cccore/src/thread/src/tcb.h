@@ -10,6 +10,7 @@ enum thread_state_t {
     THREAD_STATE_DEAD,
     THREAD_STATE_BLOCKED,
 };
+void kprintf_thread_state_t(enum thread_state_t state);
 
 struct thread_tcb_t {
     thread_tid_t tid;

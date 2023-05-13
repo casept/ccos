@@ -7,6 +7,7 @@
 #include "../../common.h"
 #include "internal.h"
 #include "interrupt.h"
+#include "tcb.h"
 #include "thread/src/tcb.h"
 
 struct thread_t THREADS[THREADS_NUM];
@@ -129,26 +130,28 @@ int thread_lookup_idx_by_tid(thread_tid_t tid, size_t* idx) {
     return -1;
 }
 
-void thread_start_idle(void) { kpanicf("thread_start_idle(): Not implemented"); }
+void thread_start_idle(void) { kpanicf("%s: Not implemented", __func__); }
 
-void thread_print_cpu_state(const struct thread_cpu_state_t* const cpu_state) {
-    kprintf("rip: %x\n", cpu_state->rip);
-    kprintf("rax: %x\n", cpu_state->rax);
-    kprintf("rbx: %x\n", cpu_state->rbx);
-    kprintf("rcx: %x\n", cpu_state->rcx);
-    kprintf("rdx: %x\n", cpu_state->rdx);
-    kprintf("rsi: %x\n", cpu_state->rsi);
-    kprintf("rdi: %x\n", cpu_state->rdi);
-    kprintf("rsp: %x\n", cpu_state->rsp);
-    kprintf("rbp: %x\n", cpu_state->rbp);
-    kprintf("r8:  %x\n", cpu_state->r8);
-    kprintf("r9:  %x\n", cpu_state->r9);
-    kprintf("r10: %x\n", cpu_state->r10);
-    kprintf("r11: %x\n", cpu_state->r11);
-    kprintf("r12: %x\n", cpu_state->r12);
-    kprintf("r13: %x\n", cpu_state->r13);
-    kprintf("r14: %x\n", cpu_state->r14);
-    kprintf("r15: %x\n", cpu_state->r15);
+void kprintf_cpu_state_t(const struct thread_cpu_state_t* const cpu_state) {
+    kprintf("==== CPU State ====\n");
+    kprintf("rip: %p\n", cpu_state->rip);
+    kprintf("rax: %p\n", cpu_state->rax);
+    kprintf("rbx: %p\n", cpu_state->rbx);
+    kprintf("rcx: %p\n", cpu_state->rcx);
+    kprintf("rdx: %p\n", cpu_state->rdx);
+    kprintf("rsi: %p\n", cpu_state->rsi);
+    kprintf("rdi: %p\n", cpu_state->rdi);
+    kprintf("rsp: %p\n", cpu_state->rsp);
+    kprintf("rbp: %p\n", cpu_state->rbp);
+    kprintf("r8:  %p\n", cpu_state->r8);
+    kprintf("r9:  %p\n", cpu_state->r9);
+    kprintf("r10: %p\n", cpu_state->r10);
+    kprintf("r11: %p\n", cpu_state->r11);
+    kprintf("r12: %p\n", cpu_state->r12);
+    kprintf("r13: %p\n", cpu_state->r13);
+    kprintf("r14: %p\n", cpu_state->r14);
+    kprintf("r15: %p\n", cpu_state->r15);
+    kprintf("===================\n");
 }
 
 void thread_dump_state(thread_tid_t tid) {
@@ -156,10 +159,14 @@ void thread_dump_state(thread_tid_t tid) {
     if (t == NULL) {
         kpanicf("tried to dump nonexistent thread with TID: %d\n", tid);
     }
-    kprintf("tcb.stack_ptr: %x\n", t->stack_ptr);
-    kprintf("tcb.state: %d\n", t->state);
+    kprintf("==== Thread State ====\n");
+    kprintf("tcb.stack_ptr: 0x%p\n", t->stack_ptr);
+    kprintf("tcb.state: ");
+    kprintf_thread_state_t(t->state);
+    kprintf("\n");
+    kprintf("===================\n");
     const struct thread_cpu_state_t* const cpu_state = (struct thread_cpu_state_t*)t->stack_ptr;
-    thread_print_cpu_state(cpu_state);
+    kprintf_cpu_state_t(cpu_state);
 }
 
 static void load_cpu_state(const struct thread_cpu_state_t t_cpu, struct interrupt_isr_data_t* isr_data) {

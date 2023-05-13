@@ -25,8 +25,8 @@ static void pf(struct interrupt_isr_data_t *data) {
     const uint64_t reserved_write = (err & 0x0000000000000008) >> 3;
     const uint64_t if_nx = (err & 0x0000000000000010) >> 4;
     kpanicf(
-        "PF at virtual address 0x%x\npresent: %d, write: %d, user: %d\n reserved write: %d, instruction fetch (NX): "
-        "%d\n",
+        "==== Page Fault ====\nPF at virtual address %p\npresent: %w\nwrite: %w\nuser: %w\nreserved write: "
+        "%w\ninstruction fetch (NX): %w\n=====================\n",
         cr2, present, write, user, reserved_write, if_nx);
 }
 

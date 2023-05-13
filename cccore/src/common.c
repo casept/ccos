@@ -16,16 +16,19 @@ void kprintf(const char* format, ...) {
     va_start(vlist, format);
     vga_vprintf(format, vlist);
     serial_com1_vprintf(format, vlist);
+    va_end(vlist);
 }
 
 void __attribute__((noreturn)) kpanicf(const char* format, ...) {
     vga_printf("PANIC: ");
+    serial_com1_printf("PANIC: ");
     va_list vlist;
     va_start(vlist, format);
     vga_vprintf(format, vlist);
     serial_com1_vprintf(format, vlist);
     __asm__ volatile("cli; hlt");
     // To make the stupid compiler happy
+    va_end(vlist);
     while (true) {
     }
 }
