@@ -7,13 +7,12 @@
 		{
 			"type": "gdb",
 			"request": "attach",
-			"name": "cccore debug (limine)",
+			"name": "debug cccore",
 			"executable": "${workspaceFolder}/cccore/build/cccore.elf",
-			"target": ":1234",
+			"target": "127.0.0.1:1234",
 			"remote": true,
-			"args": [],
-			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "cccore run (debug)",
+			"cwd": "${workspaceFolder}/cccore/",
+			// "preLaunchTask": "cccore run (debug)",
 		}
 	]
 }

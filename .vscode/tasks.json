@@ -4,9 +4,18 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "cccore build (debug)",
+			"type": "shell",
+			"command": "make -C cccore/ cccore",
+			"group": {
+				"kind": "build",
+			}
+		},
+		{
 			"label": "cccore run (debug)",
 			"type": "shell",
-			"command": "make -C cccore/ run_limine_debug"
-		}
+			"command": "make -C cccore/ run_limine_debug",
+			"isBackground": true,
+		},
 	]
 }

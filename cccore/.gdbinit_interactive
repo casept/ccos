@@ -1,0 +1,9 @@
+target remote 127.0.0.1:1234
+symbol-file build/cccore.elf
+layout regs
+break kmain
+
+# Setup specific to current debug session, not commited
+source .gdbinit_scratch
+
+continue

@@ -4,7 +4,8 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-.PHONY: clean run run_limine run_debug run_limine_debug
+.PHONY: clean run run_limine run_debug run_limine_debug run_limine_debug_interactive
+
 
 include $(CCOS_PROJECT_ROOT)/toolchains/x86_64-unknown-elf-gcc.mk
 
@@ -108,6 +109,10 @@ clean_recursive:
 
 -include $(DEPS)
 
+# Because BUILD_DIR may change and e.g. the vscode debugger config needs a fixed taget
+.PHONY: cccore
+cccore: $(BUILD_DIR)/cccore.img
+
 run: $(BUILD_DIR)/cccore.img
 	qemu-system-x86_64 -serial stdio -machine q35 -fda $(BUILD_DIR)/cccore.img
 
@@ -119,6 +124,9 @@ run_limine: $(BUILD_DIR)/cccore_limine.img
 
 run_limine_debug: $(BUILD_DIR)/cccore_limine.img
 	qemu-system-x86_64 -serial stdio -machine q35 -hda $(BUILD_DIR)/cccore_limine.img -s -S
+
+run_limine_debug_interactive: $(BUILD_DIR)/cccore_limine.img
+	qemu-system-x86_64 -serial stdio -machine q35 -hda $(BUILD_DIR)/cccore_limine.img -s -S & gdb -x .gdbinit_interactive
 
 run_limine_bochs: $(BUILD_DIR)/cccore_limine.img
 	bochs -q
