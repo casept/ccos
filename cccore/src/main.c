@@ -10,6 +10,7 @@
 #include "tcb.h"
 #include "thread/include/thread.h"
 #include "thread/sched/include/sched.h"
+#include "thread/src/internal.h"
 
 #define STACK_SIZE 4096
 static uint8_t stack[STACK_SIZE];
@@ -68,23 +69,28 @@ static void timer(struct interrupt_isr_data_t *isr_data) {
     const thread_tid_t tid_new = thread_sched_round_robin();
     const thread_tid_t tid_old = thread_get_current_tid();
     // TODO: Remove
-    kprintf("main(): Next scheduled TID is %d\n", tid_new);
+    kprintf("State of old thread %lu:\n", tid_old);
+    thread_dump_state(tid_old);
+    kprintf("State of new thread %lu:\n", tid_new);
+    thread_dump_state(tid_new);
     thread_switch_prepare(t_cpu, tid_old, tid_new, isr_data);
 
     // Return from ISR, causing the interrupt handler to load the registers
     return;
 }
 
+/*
 void test_thread_1(void) {
     while (true) {
-        kprintf("Thread1 is running\n");
+        asm volatile("");
     }
 }
 void test_thread_2(void) {
     while (true) {
-        kprintf("Thread2 is running\n");
+        asm volatile("");
     }
 }
+*/
 
 void kmain(void) {
     interrupt_disable();
@@ -99,9 +105,12 @@ void kmain(void) {
     interrupt_enable();
 
     thread_threading_init();
+    /*
     thread_tid_t test_1_tid;
     thread_create(test_thread_1, &test_1_tid);
     thread_tid_t test_2_tid;
     thread_create(test_thread_2, &test_2_tid);
+    */
+    kprintf("Starting idle thread!\n");
     thread_go();
 }

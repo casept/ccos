@@ -99,11 +99,22 @@ int thread_create(thread_entrypoint_t entry, thread_tid_t* tid) {
 
 static void idle_thread(void) {
     while (true) {
-        kprintf("Idle thread is running\n");
+        kprintf("Hello from the idle thread!\n");
     }
 }
 
 void thread_threading_init(void) {
+    // Clear data structures
+    for (size_t i = 0; i < THREADS_NUM; i++) {
+        THREADS[i].occupied = false;
+        THREADS[i].tcb = (struct thread_tcb_t){
+            .tid = 0,
+            .stack_ptr = NULL,
+            .state = THREAD_STATE_DEAD,
+        };
+        memset(THREADS[i].stack, 0, THREAD_STACK_SIZE);
+    }
+
     // Create the idle thread
     thread_tid_t idle_tid;
     thread_create(idle_thread, &idle_tid);
