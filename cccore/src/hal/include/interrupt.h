@@ -5,6 +5,8 @@
 /// Data that is passed by the ASM stubs to all C ISRs.
 ///
 /// Depending on the interrupt, some fields may contain dummy values.
+///
+/// The order is important, as the CPU and ASM stubs will push the registers in this order.
 struct __attribute__((__packed__)) interrupt_isr_data_t {
     // Machine registers
     uint64_t rax;
@@ -32,7 +34,11 @@ struct __attribute__((__packed__)) interrupt_isr_data_t {
     uint64_t cs;
     uint64_t rflags;
     uint64_t rsp;
+    uint64_t ss;
 };
+
+/// Output the contents of an interrupt_isr_data_t to debug output.
+void kprintf_interrupt_isr_data_t(const struct interrupt_isr_data_t* data);
 
 /// Signature that all custom ISRs must obey.
 ///

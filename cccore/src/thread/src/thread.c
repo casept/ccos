@@ -171,7 +171,7 @@ void thread_dump_state(thread_tid_t tid) {
         kpanicf("tried to dump nonexistent thread with TID: %d\n", tid);
     }
     kprintf("==== Thread State ====\n");
-    kprintf("tcb.stack_ptr: 0x%p\n", t->stack_ptr);
+    kprintf("tcb.stack_ptr: %p\n", t->stack_ptr);
     kprintf("tcb.state: ");
     kprintf_thread_state_t(t->state);
     kprintf("\n");
@@ -201,12 +201,12 @@ static void load_cpu_state(const struct thread_cpu_state_t t_cpu, struct interru
     // FIXME: Restore RFLAGS
 }
 
-int thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread_tid_t old_thread_tid,
-                          thread_tid_t new_thread_tid, struct interrupt_isr_data_t* isr_data) {
+void thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread_tid_t old_thread_tid,
+                           thread_tid_t new_thread_tid, struct interrupt_isr_data_t* isr_data) {
     // Stack the old thread's registers
     struct thread_t* old_thread = lookup_thread_by_tid(old_thread_tid);
     if (old_thread == NULL) {
-        return -1;
+        kpanicf("%s: old_thread with TID %d does not exist", __func__, old_thread_tid);
     }
     // TODO: Change once user address space != kernel address space
     struct thread_t* old_thread_stack_top = (struct thread_t*)old_thread_cpu_state.rsp;
@@ -214,7 +214,7 @@ int thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread
 
     struct thread_t* new_thread = lookup_thread_by_tid(new_thread_tid);
     if (new_thread == NULL) {
-        return -1;
+        kpanicf("%s: new_thread with TID %d does not exist", __func__, new_thread_tid);
     }
     THREADS_ACTIVE_TID = new_thread_tid;
 
@@ -224,7 +224,6 @@ int thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread
     // TODO: Is this the correct location on the stack?
     // The part where we actually write to where the ISR loads them
     load_cpu_state(*new_thread_cpu_state, isr_data);
-    return 0;
 }
 
 extern void __attribute__((noreturn)) thread_switch_asm(unsigned char* thread_stack_top);

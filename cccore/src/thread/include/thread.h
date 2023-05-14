@@ -7,12 +7,8 @@
 
 /// Prepare a switch to the given thread, by storing old thread's state and loading new thread's registers onto the
 /// stack, where the ISR will load them back into the CPU.
-///
-/// Returns `-1` if the new (or old) thread does not exist.
-///
-/// Returns `0` if preparations went OK.
-int thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread_tid_t old_thread_tid,
-                          thread_tid_t new_thread_tid, struct interrupt_isr_data_t *isr_data);
+void thread_switch_prepare(struct thread_cpu_state_t old_thread_cpu_state, thread_tid_t old_thread_tid,
+                           thread_tid_t new_thread_tid, struct interrupt_isr_data_t *isr_data);
 
 /// Kick the entire thread machinery into gear by switching to the idle thread and leaving the kernel's main function.
 ///

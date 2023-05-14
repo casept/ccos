@@ -58,7 +58,7 @@ static struct thread_cpu_state_t isr_data_2_cpu_state(const struct interrupt_isr
 }
 
 static void timer(struct interrupt_isr_data_t *isr_data) {
-    kprintf("Tick\n");
+    kprintf("%s: tick\n", __func__);
     // Convert CPU state to format expected by thread subsystem
     struct thread_cpu_state_t t_cpu = isr_data_2_cpu_state(isr_data);
 
@@ -69,9 +69,9 @@ static void timer(struct interrupt_isr_data_t *isr_data) {
     const thread_tid_t tid_new = thread_sched_round_robin();
     const thread_tid_t tid_old = thread_get_current_tid();
     // TODO: Remove
-    kprintf("State of old thread %lu:\n", tid_old);
+    kprintf("%s: state of old thread %lu:\n", __func__, tid_old);
     thread_dump_state(tid_old);
-    kprintf("State of new thread %lu:\n", tid_new);
+    kprintf("%s: state of new thread %lu:\n", __func__, tid_new);
     thread_dump_state(tid_new);
     thread_switch_prepare(t_cpu, tid_old, tid_new, isr_data);
 
@@ -95,7 +95,7 @@ void test_thread_2(void) {
 void kmain(void) {
     interrupt_disable();
     kprint_init();
-    kprintf("Hello\n");
+    kprintf("%s: hello\n", __func__);
 
     gdt_init_flat();
     interrupt_init();
@@ -111,6 +111,6 @@ void kmain(void) {
     thread_tid_t test_2_tid;
     thread_create(test_thread_2, &test_2_tid);
     */
-    kprintf("Starting idle thread!\n");
+    kprintf("%s: Starting idle thread!\n", __func__);
     thread_go();
 }

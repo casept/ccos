@@ -109,17 +109,49 @@ void interrupt_ack(uint8_t idt_slot) {
     if (pic_idt_is_managed(idt_slot)) {
         pic_ack(pic_idt_slot_to_irq(idt_slot));
     } else {
-        kpanicf("Interrupt: Can't ack because interrupt controller for IDT slot %u is unknown.", idt_slot);
+        kpanicf("%s: can't ack because interrupt controller for IDT slot %u is unknown.", __func__, idt_slot);
     }
+}
+
+void kprintf_interrupt_isr_data_t(const struct interrupt_isr_data_t* data) {
+    kprintf("==== INTERRUPT ISR DATA ====\n");
+    kprintf("==== GENERAL REGISTERS ====\n");
+    kprintf("rax: %p\n", data->rax);
+    kprintf("rbx: %p\n", data->rbx);
+    kprintf("rcx: %p\n", data->rcx);
+    kprintf("rdx: %p\n", data->rdx);
+    kprintf("rsi: %p\n", data->rsi);
+    kprintf("rdi: %p\n", data->rdi);
+    kprintf("rbp: %p\n", data->rbp);
+    kprintf("r8:  %p\n", data->r8);
+    kprintf("r9:  %p\n", data->r9);
+    kprintf("r10: %p\n", data->r10);
+    kprintf("r11: %p\n", data->r11);
+    kprintf("r12: %p\n", data->r12);
+    kprintf("r13: %p\n", data->r13);
+    kprintf("r14: %p\n", data->r14);
+    kprintf("r15: %p\n", data->r15);
+    kprintf("==== PUSHED BY ISR ====\n");
+    kprintf("int_num: %lu\n", data->int_num);
+    kprintf("int_arg: %lu\n", data->int_arg);
+    kprintf("==== PUSHED BY CPU ====\n");
+    kprintf("rip:     %p\n", data->rip);
+    kprintf("cs:      %p\n", data->cs);
+    kprintf("rflags:  %p\n", data->rflags);
+    kprintf("rsp:     %p\n", data->rsp);
+    kprintf("ss:      %p\n", data->ss);
+    kprintf("============================\n");
 }
 
 /// Called by ASM to dispatch interrupts to the appropriate C handler registered in `INT_HANDLERS`.
 void isr_dispatch(struct interrupt_isr_data_t* data) {
+    kprintf("%s: taken interrupt, saved data:\n", __func__);
+    kprintf_interrupt_isr_data_t(data);
     // Do we have a registered C ISR for this?
     interrupt_isr_t handler = INT_HANDLERS[(size_t)data->int_num];
     if (handler != NULL) {
         handler(data);
     } else {
-        kpanicf("Got unhandled interrupt number %u with argument %u", data->int_num, data->int_arg);
+        kpanicf("%s: got unhandled interrupt number %lu with argument %lu", __func__, data->int_num, data->int_arg);
     }
 }

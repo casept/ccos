@@ -49,5 +49,6 @@ isr_common:
 	pop r15
 
 	//; Remove argument and ISR number before returning.
-	add rsp, 2*8
+	sub rsp, 2*8
+	//; CPU will pop RIP, CS, RFLAGS, and SS and resume execution.
 	iretq

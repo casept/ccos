@@ -9,7 +9,7 @@ thread_tid_t thread_sched_round_robin(void) {
     // Find index of active thread
     size_t curr_thread_idx;
     if (lookup_idx_by_tid(THREADS_ACTIVE_TID, &curr_thread_idx) != 0) {
-        kpanicf("thread_round_robin_sched(): Could not locate TCB of currently active thread");
+        kpanicf("%s: Could not locate TCB of currently active thread", __func__);
     }
 
     // Walk all threads after active one
@@ -25,7 +25,8 @@ thread_tid_t thread_sched_round_robin(void) {
             return THREADS[i].tcb.tid;
         }
     }
-    kprintf("using idle thread as backup\n");
+
     // Return idle thread if no ready thread could be found
+    kprintf("%s: using idle thread as backup\n", __func__);
     return THREADS_IDLE_TID;
 }
