@@ -117,7 +117,7 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
             i++;
             const char fmt = format[i];
             // Pre declared because vars can't be declared in switch
-            char* cc;
+            const char* str;
             char ch;
             unsigned int x;
             unsigned long long x_long;
@@ -153,10 +153,10 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                     is_long = true;
                     goto process_specifier_char;
                 case 's':
-                    cc = va_arg(vlist, char*);
-                    while (*cc != '\0') {
-                        sink(*cc);
-                        cc++;
+                    str = va_arg(vlist, const char*);
+                    while (*str != '\0') {
+                        sink(*str);
+                        str++;
                     }
                     break;
                 case 'c':
@@ -168,8 +168,6 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                     if (is_long) {
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 10, padding);
-                        is_long = false;
-                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 10, padding);
@@ -179,24 +177,18 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                     if (is_long) {
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 16, padding);
-                        is_long = false;
-                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 16, padding);
-                        padding = -1;
                     }
                     break;
                 case 'o':
                     if (is_long) {
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 8, padding);
-                        is_long = false;
-                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 8, padding);
-                        padding = -1;
                     }
                     break;
                 case 'd':
@@ -204,18 +196,14 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
                     // TODO: Handle long
                     x_signed = va_arg(vlist, int);
                     vprintf_sint_to_decimal(sink, x_signed, padding);
-                    padding = -1;
                     break;
                 case 'b':
                     if (is_long) {
                         x_long = va_arg(vlist, unsigned long long);
                         vprintf_uint_to_base_long(sink, x_long, 2, padding);
-                        is_long = false;
-                        padding = -1;
                     } else {
                         x = va_arg(vlist, unsigned int);
                         vprintf_uint_to_base(sink, x, 2, padding);
-                        padding = -1;
                     }
                     break;
                 case 'p':
@@ -251,7 +239,7 @@ int vprintf_generic(const vprintf_sink sink, const char* format, va_list vlist) 
             }
             i++;
         } else {
-            // This is a literal character, and no format specifier is expected anymore
+            // This is a literal character, this particular format specifier is over
             sink(c);
             i++;
         }
