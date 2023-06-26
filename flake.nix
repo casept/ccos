@@ -26,7 +26,6 @@
             include-what-you-use
             python3
             gdb
-            (callPackage ./nix/pkgs/camomilla { pythonXXPackages = python310Packages; })
             (callPackage ./nix/pkgs/lizard { })
             (callPackage ./nix/pkgs/limine { })
             qemu
